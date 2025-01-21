@@ -12,13 +12,16 @@ use yii\base\Component;
  * @package stmswitcher\Yii2LdapAuth\Components
  * @author Denis Alexandrov <stm.switcher@gmail.com>
  * @date 30.06.2020
+ * 
+ * Modified 2024-01-21 to support PHP8.3 by Neil Munro <neil@munro.pt>
+ * Removed port parameter
+ * Replaced protocol+host with uri
+ * Changed connection check from resource to \LDAP\Connection
  */
 class LdapAuth extends Component
 {
     private const DEFAULT_TIMEOUT = 10;
     private const DEFAULT_CONNECT_TIMEOUT = 10;
-    private const DEFAULT_PROTOCOL = 'ldaps://';
-    private const DEFAULT_PORT = 636;
     private const DEFAULT_LDAP_VERSION = 3;
     private const DEFAULT_LDAP_OBJECT_CLASS = 'person';
     private const DEFAULT_UID_ATTRIBUTE = 'uid';
@@ -34,19 +37,9 @@ class LdapAuth extends Component
     public $followReferrals = false;
 
     /**
-     * @var string Protocol to use.
+     * @var string LDAP server URI including protocol and port e.g. ldaps://ldap.local:636 or ldap://ldap.local:389
      */
-    public $protocol = self::DEFAULT_PROTOCOL;
-
-    /**
-     * @var string LDAP server URL.
-     */
-    public $host;
-
-    /**
-     * @var int LDAP port to use.
-     */
-    public $port = self::DEFAULT_PORT;
+    public $uri;
 
     /**
      * @var string username of the search user that would look up entries.
@@ -84,7 +77,7 @@ class LdapAuth extends Component
     public $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
     /**
-     * @var resource|false
+     * @var \LDAP\Connection|false
      */
     protected $connection;
 
@@ -95,12 +88,11 @@ class LdapAuth extends Component
      */
     protected function connect(): void
     {
-        if (is_resource($this->connection)) {
+        if ($this->connection) {
             return;
         }
 
-        $this->connection = ldap_connect($this->protocol . $this->host, $this->port);
-
+        $this->connection = ldap_connect($this->uri);
         ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, $this->ldapVersion);
         ldap_set_option($this->connection, LDAP_OPT_REFERRALS, $this->followReferrals);
 
@@ -127,7 +119,7 @@ class LdapAuth extends Component
     }
 
     /**
-     * @return resource
+     * @return \LDAP\Connection
      * @throws Yii2LdapAuthException
      */
     public function getConnection()
