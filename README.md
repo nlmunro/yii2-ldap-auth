@@ -81,3 +81,9 @@ Yii::$app->ldapAuth->authenticate($user->getDn(), $this->password, 'cn=auth-user
 ```
 
 Now you can login with LDAP credentials to your application.
+
+### Self-signed certificates
+Add this to the ldap.conf (in /etc/openldap or c:\openldap\sysconfig), but bear in mind this leaves you open to MITM attacks:
+```
+TLS_REQCERT never
+```
