@@ -18,16 +18,14 @@ Considering [yii2-app-basic](https://github.com/yiisoft/yii2-app-basic):
     ...
     'ldapAuth' => [
         'class' => '\stmswitcher\Yii2LdapAuth\LdapAuth',
-        'host' => 'your-ldap-hostname',
+        'uri' => 'ldaps://your-ldap-hostname:636',
         'baseDn' => 'dc=work,dc=group',
         'searchUserName' => '<username for a search user>',
         'searchUserPassword' => '<password for a search user>',
 
         // optional parameters and their default values
         'ldapVersion' => 3,             // LDAP version
-        'protocol' => 'ldaps://',       // Protocol to use           
         'followReferrals' => false,     // If connector should follow referrals
-        'port' => 636,                  // Port to connect to
         'loginAttribute' => 'uid',      // Identifying user attribute to look up for
         'ldapObjectClass' => 'person',  // Class of user objects to look up for
         'timeout' => 10,                // Operation timeout, seconds
@@ -81,3 +79,7 @@ Yii::$app->ldapAuth->authenticate($user->getDn(), $this->password, 'cn=auth-user
 ```
 
 Now you can login with LDAP credentials to your application.
+
+### Self-signed certificates
+Add this to the ldap.conf (in /etc/opendldap or c:\openldap\sysconfig) but bear in mind this leaves you open to MITM attacks.
+TLS_REQCERT never
